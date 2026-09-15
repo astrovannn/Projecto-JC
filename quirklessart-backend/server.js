@@ -52,3 +52,84 @@ app.get("/api/comisiones", (req, res) => {
 app.listen(PORT, () => {
     console.log(`Servidor corriendo en http://localhost:${PORT}`);
 });
+
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+
+const JWT_SECRET = "cambia-esto-por-algo-secreto-y-largo"; // en producción esto va aparte, no en el código
+
+// Tabla de usuarios
+db.exec(`
+    CREATE TABLE IF NOT EXISTS usuarios (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        nombre TEXT NOT NULL,
+        email TEXT UNIQUE NOT NULL,
+        password_hash TEXT NOT NULL,
+        creado_en TEXT DEFAULT CURRENT_TIMESTAMP
+    )
+`);
+
+// Registro de un nuevo artista
+app.post("/api/registro", async (req, res) => {
+    const { nombre, email, password } = req.body;
+
+    if (!nombre || !email || !password) {
+        return res.status(400).json({ error: "Faltan datos" });
+    }
+
+    const existente = db.prepare("SELECT id FROM usuarios WHERE email = ?").get(email);
+    if (existente) {
+        return res.status(400).json({ error: "Ese correo ya está registrado" });
+    }
+
+    const password_hash = await bcrypt.hash(password, 10);
+
+    const insertar = db.prepare(
+        "INSERT INTO usuarios (nombre, email, password_hash) VALUES (?, ?, ?)"
+    );
+    const resultado = insertar.run(nombre, email, password_hash);
+
+    res.json({ mensaje: "Cuenta creada", id: resultado.lastInsertRowid });
+});
+
+// Login
+app.post("/api/login", async (req, res) => {
+    const { email, password } = req.body;
+
+    const usuario = db.prepare("SELECT * FROM usuarios WHERE email = ?").get(email);
+    if (!usuario) {
+        return res.status(401).json({ error: "Correo o contraseña incorrectos" });
+    }
+
+    const coincide = await bcrypt.compare(password, usuario.password_hash);
+    if (!coincide) {
+        return res.status(401).json({ error: "Correo o contraseña incorrectos" });
+    }
+
+    const token = jwt.sign(
+        { id: usuario.id, email: usuario.email },
+        JWT_SECRET,
+        { expiresIn: "7d" }
+    );
+
+    res.json({ mensaje: "Login exitoso", token });
+});
+
+// "Guardia": verifica el token antes de dejar pasar a rutas protegidas
+function verificarToken(req, res, next) {
+    const authHeader = req.headers.authorization;
+    if (!authHeader) return res.status(401).json({ error: "No autorizado" });
+
+    const token = authHeader.split(" ")[1]; // formato: "Bearer eltoken"
+    try {
+        req.usuario = jwt.verify(token, JWT_SECRET);
+        next(); // deja continuar a la ruta real
+    } catch (error) {
+        return res.status(401).json({ error: "Token inválido o expirado" });
+    }
+}
+
+// Ruta de prueba, protegida
+app.get("/api/perfil", verificarToken, (req, res) => {
+    res.json({ mensaje: `Hola, ${req.usuario.email}` });
+});
