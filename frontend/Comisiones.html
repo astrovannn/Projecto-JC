@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>QuirklessArt</title>
+    <link rel="stylesheet" href="./assets/css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Ballet:opsz@16..72&display=swap" rel="stylesheet">
+</head>
+<body>
+    <header>
+        <h1>Comisiones</h1>
+    </header>
+    <main>
+        <h2>¿Tienes una idea en mente?</h2>
+    </main>
+<section id="Comisiones">
+    <p>
+        ¿Quieres una obra personalizada?
+        Cuéntame qué tienes en mente.
+    </p>
+
+    <form id="formComision">
+
+        <label for="tipo">Tipo de obra:</label>
+
+        <select id="tipo">
+            <option value="Digital">Ilustración digital</option>
+            <option value="Acrilico">Pintura acrílica</option>
+            <option value="Oleo">Pintura al óleo</option>
+        </select>
+
+
+        <label for="personas">Número de personas:</label>
+
+        <input
+            type="number"
+            id="personas"
+            min="1"
+            max="10"
+            value="1"
+        >
+
+
+        <label for="tamano">Tamaño:</label>
+
+        <select id="tamano">
+            <option value="Pequeño">Pequeño</option>
+            <option value="Mediano">Mediano</option>
+            <option value="Grande">Grande</option>
+        </select>
+
+
+        <label for="descripcion">
+            Describe tu idea:
+        </label>
+
+        <textarea
+            id="descripcion"
+            placeholder="Cuéntame qué quieres realizar..."
+        ></textarea>
+
+
+        <button type="submit">
+            Solicitar cotización
+        </button>
+
+    </form>
+
+
+    <!-- Aquí aparecerá el precio -->
+    <div id="cotizacion"></div>
+
+    <!-- Aquí aparecerá el ticket -->
+    <div id="ticket"></div>
+
+</section>
+</body>
+<script src="./assets/js/script.js"></script>
+</html>

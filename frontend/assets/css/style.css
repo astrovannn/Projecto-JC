@@ -15,6 +15,19 @@ header{
     justify-content:center;
     align-items:center;
     padding:20px;
+    position: relative;   /* contiene las lianas del header */
+    overflow: hidden;      /* evita que se salgan del bloque negro */
+}
+
+header h1{
+        position: relative;
+    z-index: 2;
+}
+
+header .liana {
+    width: 120px;
+    height: 120px;
+    opacity: 0.9;
 }
 
 body{
@@ -30,6 +43,19 @@ nav{
     justify-content: center;
     align-items: center;
     gap: 30px;
+}
+
+nav a {
+    color: white;
+    text-decoration: none;
+}
+
+nav a:hover {
+    color: rgb(200, 40, 40);
+}
+
+nav a:visited {
+    color: white;
 }
 
 #Hero{
@@ -71,6 +97,7 @@ nav{
     column-count: 4;
     column-gap: 1rem;
     padding: 1rem;
+    position: relative;   /* contiene las lianas de la galería */
 }
 .Galeria img{
     width: 100%;
@@ -103,3 +130,175 @@ nav{
         column-count: 2;
     }
 }
+.modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.9);
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modal-contenido {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 40px;
+
+    background: black;
+    color: white;
+
+    width: 90%;
+    max-width: 1100px;
+    padding: 40px;
+    border-radius: 12px;
+
+    overflow: hidden; /* para que la liana no se salga del recuadro */
+}
+
+.modal-texto {
+    flex: 0 0 300px;  /* ancho fijo de la columna de texto */
+    z-index: 2;         /* por encima de la liana */
+}
+
+.modal-texto h2 {
+    font-family: "Ballet", cursive;
+    font-size: 45px;
+    color: rgb(70, 4, 4);
+    margin-bottom: 20px;
+    text-align: left;
+}
+
+.modal-texto p {
+    font-size: 16px;
+    line-height: 1.6;
+}
+
+.modal-imagen-wrapper {
+    flex: 1;
+    z-index: 2;
+}
+
+.modal-contenido img {
+    width: 100%;
+    max-height: 70vh;
+    object-fit: cover;
+    border-radius: 4px;
+    display: block;
+}
+
+#cerrarModal {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    border: none;
+    background: none;
+    color: white;
+    font-size: 22px;
+    cursor: pointer;
+    z-index: 3;
+}
+
+/* En pantallas angostas, apila texto arriba e imagen abajo */
+@media (max-width: 768px) {
+    .modal-contenido {
+        flex-direction: column;
+    }
+    .modal-texto {
+        flex: none;
+    }
+}
+#Comisiones {
+    max-width: 600px;
+    margin: 40px auto;
+    padding: 20px;
+    color: white;
+}
+
+#Comisiones ~ * ,
+main h2,
+main > p {
+    text-align: center;
+}
+
+#Comisiones h2 {
+    font-family: "Ballet", cursive;
+    font-size: 40px;
+    color: rgb(70, 4, 4);
+    text-align: center;
+}
+
+#formComision {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 20px;
+}
+
+#formComision label {
+    font-size: 16px;
+}
+
+#formComision select,
+#formComision input,
+#formComision textarea {
+    padding: 10px;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+}
+
+#formComision textarea {
+    min-height: 100px;
+    resize: vertical;
+}
+
+#formComision button {
+    background-color: rgb(70, 4, 4);
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color .2s ease;
+}
+
+#formComision button:hover {
+    background-color: rgb(110, 10, 10);
+}
+
+#cotizacion,
+#ticket {
+    margin-top: 20px;
+}
+
+.ticket {
+    background: white;
+    color: rgb(30, 30, 30);
+    padding: 20px;
+    border-radius: 12px;
+    text-align: left;
+}
+
+.liana {
+    position: absolute;
+    width: 220px;
+    height: 220px;
+    background-image: url(../img/vine.svg);
+    background-repeat: no-repeat;
+    background-size: contain;
+
+    pointer-events: none; /* sin interacción, como pediste antes */
+    z-index: 1;            /* detrás del texto/imágenes importantes */
+}
+
+/* Modificadores de posición: agrega el que necesites en cada sección */
+.liana--top-left     { top: 0;    left: 0; }
+.liana--top-right    { top: 0;    right: 0;  transform: scaleX(-1); }
+.liana--bottom-left  { bottom: 0; left: 0;   transform: scaleY(-1); }
+.liana--bottom-right { bottom: 0; right: 0;  transform: scale(-1, -1); }
+
+/* Variante más chica, para esquinas de tarjetas/galería */
+.liana--sm { width: 130px; height: 130px; }

@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QuirklessArt</title>
-    <link rel="stylesheet" href=./assets/css/style.css>
+    <link rel="stylesheet" href="./assets/css/style.css">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Ballet:opsz@16..72&display=swap" rel="stylesheet">
@@ -12,12 +12,15 @@
 
 <body>
     <header> 
+          <div class="liana liana--top-left" aria-hidden="true"></div>
         <h1>QuirklessArt</h1> <!--Falta mejorar el nombre-->
+            <div class="liana liana--top-right" aria-hidden="true"></div>
     </header>
     <nav>
             <a href="./index.html">Inicio</a>
             <a href="./Ilustraciones.html">Ilustraciones</a>
             <a href="./Contacto.html">Contacto</a>
+            <a href="./Comisiones.html">Comisiones</a>
         </nav>
 
     <main> <!--Con el css se podria hacer la decoracion roja-->
@@ -37,19 +40,48 @@
         </section>
 
         <div class="Galeria"><!-- La idea es que salgan como en el ppt-->
-        <img src="assets/img/Mi novia.jpg" alt="Dibujo de Mi novia bella">
-        <img src="assets/img/Elric.jpg" alt="Dibujo de Los hermanos Elric de FMAB">
-        <img src="assets/img/Rogue.jpg" alt="Dibujo de Rogue de X-Men">
-        <img src="assets/img/Griffith.jpg" alt="">
-        <img src="assets/img/Jhonny.jpg" alt="">
-        <img src="assets/img/Koi.jpg" alt="">
-        <img src="assets/img/LI1.jpg" alt="">
-        <img src="assets/img/LI2.jpg" alt="">
-        <img src="assets/img/LI3.jpg" alt="">
-        <img src="assets/img/LI4.jpg" alt="">
-        <img src="assets/img/LI5.jpg" alt="">
-        <img src="assets/img/LI6.jpg" alt="">
+            <div class="liana liana--top-left" aria-hidden="true"></div>
+    <div class="liana liana--bottom-right" aria-hidden="true"></div>
+        <img src="assets/img/Mi novia.jpg" alt="Dibujo de Mi novia bella" data-desc="Pintura en óleo sobre lienzo (2025). Retrato hecho bajo encargo.">
+        <img src="assets/img/Elric.jpg" alt="Dibujo de Los hermanos Elric de FMAB" data-desc="Pintura en óleo sobre lienzo (2025). Retrato hecho bajo encargo.">
+        <img src="assets/img/Rogue.jpg" alt="Dibujo de Rogue de X-Men" data-desc="Pintura en óleo sobre lienzo (2025). Retrato hecho bajo encargo.">
+        <img src="assets/img/Griffith.jpg" alt="Dibujo de Griffith de Berserk" data-desc="Pintura en óleo sobre lienzo (2025). Retrato hecho bajo encargo.">
+        <img src="assets/img/Jhonny.jpg" alt="Dibujo de Jhonny Joestar" data-desc="Pintura en óleo sobre lienzo (2025). Retrato hecho bajo encargo.">
+        <img src="assets/img/Koi.jpg" alt="Pintura de un pez koi" data-desc="Pintura en óleo sobre lienzo (2025). Retrato hecho bajo encargo.">
+        <img src="assets/img/LI1.jpg" alt="Laura" data-desc="Pintura en óleo sobre lienzo (2025). Retrato hecho bajo encargo.">
+        <img src="assets/img/LI2.jpg" alt="Laura" data-desc="Pintura en óleo sobre lienzo (2025). Retrato hecho bajo encargo.">
+        <img src="assets/img/LI3.jpg" alt="Laura" data-desc="Pintura en óleo sobre lienzo (2025). Retrato hecho bajo encargo.">
+        <img src="assets/img/LI4.jpg" alt="Laura" data-desc="Pintura en óleo sobre lienzo (2025). Retrato hecho bajo encargo.">
+        <img src="assets/img/LI5.jpg" alt="Laura" data-desc="Pintura en óleo sobre lienzo (2025). Retrato hecho bajo encargo.">
+        <img src="assets/img/LI6.jpg" alt="Laura" data-desc="Pintura en óleo sobre lienzo (2025). Retrato hecho bajo encargo.">
+        <img src="assets/img/Autoretrato.jpg" alt="Autoretrato" data-desc="Pintura en óleo sobre lienzo (2025). Retrato hecho bajo encargo.">
+        <img src="assets/img/Monet.jpg" alt="Pintura de Monet" data-desc="Pintura en óleo sobre lienzo (2025). Retrato hecho bajo encargo.">
+        <img src="assets/img/Spiderman.jpg" alt="Pintura de Spiderman" data-desc="Pintura en óleo sobre lienzo (2025). Retrato hecho bajo encargo.">
+        <img src="assets/img/Starfire.jpg" alt="Pintura de Starfire" data-desc="Pintura en óleo sobre lienzo (2025). Retrato hecho bajo encargo.">
+        <img src="assets/img/Toph.jpg" alt="Pintura de Toph" data-desc="Pintura en óleo sobre lienzo (2025). Retrato hecho bajo encargo.">
+        <img src="assets/img/Pucci.jpg" alt="Pintura de Pucci" data-desc="Pintura en óleo sobre lienzo (2025). Retrato hecho bajo encargo.">
+        
         </div>
+
+        <div id="modal" class="modal">
+    <div class="modal-contenido">
+
+        <button id="cerrarModal" aria-label="Cerrar">✕</button>
+
+        <div class="liana liana--bottom-left liana--sm" aria-hidden="true"></div>
+
+        <div class="modal-texto">
+            <h2 id="modalTitulo">Trabajos</h2>
+            <p id="modalDescripcion"></p>
+        </div>
+
+        <div class="modal-imagen-wrapper">
+            <img id="modalImagen" src="" alt="">
+        </div>
+
+    </div>
+</div>
+    </div>
 
         </div>
 
@@ -64,4 +96,5 @@
         <p> Ivan Tuesca</p>
     </footer>
 </body>
+<script src="./assets/js/script.js"></script>
 </html>
