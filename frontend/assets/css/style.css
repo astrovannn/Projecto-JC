@@ -302,3 +302,44 @@ main > p {
 
 /* Variante más chica, para esquinas de tarjetas/galería */
 .liana--sm { width: 130px; height: 130px; }
+
+.panel-form {
+    max-width: 400px;
+    margin: 40px auto;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    color: white;
+}
+
+.panel-form input {
+    padding: 10px;
+    border-radius: 8px;
+    border: none;
+}
+
+.panel-form button,
+#btnLogout {
+    background-color: rgb(70, 4, 4);
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
+.solicitud-card {
+    background: white;
+    color: rgb(30, 30, 30);
+    padding: 20px;
+    border-radius: 12px;
+    margin: 15px auto;
+    max-width: 500px;
+    text-align: left;
+}
+
+.solicitud-card select {
+    padding: 8px;
+    border-radius: 6px;
+    margin-top: 10px;
+}

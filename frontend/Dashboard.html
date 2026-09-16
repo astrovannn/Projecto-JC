@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi panel - QuirklessArt</title>
+    <link rel="stylesheet" href="./assets/css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Ballet:opsz@16..72&display=swap" rel="stylesheet">
+</head>
+</head>
+<body>
+    <header>
+        <h1>Mis solicitudes</h1>
+    </header>
+
+    <main>
+        <button id="btnLogout">Cerrar sesión</button>
+        
+        <div class="filtros">
+    <button data-filtro="todas" class="filtroBtn activo">Todas</button>
+    <button data-filtro="pendiente" class="filtroBtn">Pendientes</button>
+    <button data-filtro="aceptada" class="filtroBtn">Aceptadas</button>
+    <button data-filtro="rechazada" class="filtroBtn">Rechazadas</button>
+</div>
+
+        <div id="listaSolicitudes"></div>
+    </main>
+
+    <script src="./assets/js/dashboard.js"></script>
+</body>
+</html>

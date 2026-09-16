@@ -10,6 +10,26 @@ const modalDescripcion = document.getElementById("modalDescripcion");
 const cerrarModal = document.getElementById("cerrarModal");
 const imagenes = document.querySelectorAll(".Galeria img");
 
+// Llena el <select> de artistas al cargar la página
+async function cargarArtistas() {
+    const selectArtista = document.getElementById("artista");
+    if (!selectArtista) return; // esta página no tiene el selector, no hace nada
+
+    try {
+        const respuesta = await fetch("http://localhost:3000/api/artistas");
+        const artistas = await respuesta.json();
+
+        selectArtista.innerHTML = artistas.map(function (a) {
+            return `<option value="${a.id}">${a.nombre}</option>`;
+        }).join("");
+
+    } catch (error) {
+        selectArtista.innerHTML = `<option value="">No se pudo cargar la lista</option>`;
+    }
+}
+
+cargarArtistas();
+
 // --- Precios: arriba y fuera de cualquier función, para que TODOS los listeners los vean ---
 const precios = {
     Digital: 50000,
@@ -53,6 +73,7 @@ if (formulario) {
 }
 
 // --- Generar el ticket al hacer clic en "Confirmar" (el botón se crea dinámicamente arriba) ---
+// --- Generar el ticket al hacer clic en "Confirmar" (el botón se crea dinámicamente arriba) ---
 document.addEventListener("click", async function (event) {
     if (event.target.id === "confirmar") {
 
@@ -62,7 +83,10 @@ document.addEventListener("click", async function (event) {
         const descripcion = document.getElementById("descripcion").value;
         const precio = calcularPrecio(tipo, personas, tamano);
 
-        const solicitud = { tipo, personas, tamano, descripcion, precio };
+        // Antes tenías: const artista_id = 1;
+const artista_id = Number(document.getElementById("artista").value);
+
+        const solicitud = { artista_id, tipo, personas, tamano, descripcion, precio };
 
         try {
             const respuesta = await fetch("http://localhost:3000/api/comisiones", {

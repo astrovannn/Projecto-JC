@@ -1,0 +1,8 @@
+{
+    "artista_id": 1,
+    "tipo": "oleo",
+    "personas": 2,
+    "tamano": "grande",
+    "descripcion": "Solicitud para Laura",
+    "precio": 200000
+}
