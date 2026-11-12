@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comisiones - QuirklessArt</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Anton&family=Ballet:opsz@16..72&family=Barlow:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+</head>
+<body>
+    <nav class="navbar">
+        <a href="../../index.html" class="logo">Quirkless<span>Art</span></a>
+        <button class="menu-toggle" aria-label="Abrir menú" aria-expanded="false">☰</button>
+        <ul class="nav-links">
+            <li><a href="../../index.html">Inicio</a></li>
+            <li><a href="Ilustraciones.html">Ilustraciones</a></li>
+            <li><a href="Comisiones.html" class="actual" aria-current="page">Comisiones</a></li>
+            <li><a href="SobreMi.html">Sobre mí</a></li>
+            <li><a href="Contacto.html">Contacto</a></li>
+            <li><a href="Login.html">Login</a></li>
+        </ul>
+    </nav>
+
+    <header>
+        <h1>Comisiones</h1>
+    </header>
+    <main>
+        <section id="Comisiones">
+            <h2>¿Tienes una idea en mente?</h2>
+            <p>¿Quieres una obra personalizada? Cuéntame qué tienes en mente.</p>
+
+        <form id="formComision">
+              <label for="artista">Artista:</label>
+              <select id="artista" required>
+              <option value="">Cargando artistas...</option>
+                </select>
+
+
+                <label for="tipo">Tipo de obra:</label>
+
+                <select id="tipo">
+                    <option value="Digital">Ilustración digital</option>
+                    <option value="Acrilico">Pintura acrílica</option>
+                    <option value="Oleo">Pintura al óleo</option>
+                </select>
+
+
+                <label for="personas">Número de personas:</label>
+
+                <input
+                    type="number"
+                    id="personas"
+                    min="1"
+                    max="10"
+                    value="1"
+                >
+
+
+                <label for="tamano">Tamaño:</label>
+
+                <select id="tamano">
+                    <option value="Pequeño">Pequeño</option>
+                    <option value="Mediano">Mediano</option>
+                    <option value="Grande">Grande</option>
+                </select>
+
+
+                <label for="descripcion">
+                    Describe tu idea:
+                </label>
+
+                <textarea
+                    id="descripcion"
+                    placeholder="Cuéntame qué quieres realizar..."
+                ></textarea>
+
+
+                <button type="submit">
+                    Solicitar cotización
+                </button>
+
+            </form>
+
+            <!-- Aquí aparecerá el precio -->
+            <div id="cotizacion"></div>
+
+            <!-- Aquí aparecerá el ticket -->
+            <div id="ticket"></div>
+        </section>
+    </main>
+    <footer>
+        <p>© 2026 JC</p>
+        <p>Ivan Tuesca</p>
+    </footer>
+
+    <script src="../js/script.js"></script>
+    <script src="../js/nav.js"></script>
+</body>
+</html>

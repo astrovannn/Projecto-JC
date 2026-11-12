@@ -1,145 +1,110 @@
-// --- Elementos (pueden no existir en todas las páginas, por eso se verifican) ---
+// Funciones de comisiones y ampliación de imágenes de la galería.
 const formulario = document.getElementById("formComision");
-const cotizacionDiv = document.getElementById("cotizacion");
-const ticketDiv = document.getElementById("ticket");
+const cotizacion = document.getElementById("cotizacion");
+const ticket = document.getElementById("ticket");
 
-const modal = document.getElementById("modal");
-const modalImagen = document.getElementById("modalImagen");
-const modalTitulo = document.getElementById("modalTitulo");
-const modalDescripcion = document.getElementById("modalDescripcion");
-const cerrarModal = document.getElementById("cerrarModal");
-const imagenes = document.querySelectorAll(".Galeria img");
+const precios = { Digital: 50000, Acrilico: 100000, Oleo: 150000 };
+const recargos = { Pequeño: 0, Mediano: 20000, Grande: 50000 };
 
-// Llena el <select> de artistas al cargar la página
+function calcularPrecio(tipo, personas, tamano) {
+    return (precios[tipo] || 0) + Math.max(0, personas - 1) * 30000 + (recargos[tamano] || 0);
+}
+
 async function cargarArtistas() {
-    const selectArtista = document.getElementById("artista");
-    if (!selectArtista) return; // esta página no tiene el selector, no hace nada
+    const selector = document.getElementById("artista");
+    if (!selector) return;
 
     try {
         const respuesta = await fetch("http://localhost:3000/api/artistas");
+        if (!respuesta.ok) throw new Error("No se pudo cargar la lista");
         const artistas = await respuesta.json();
-
-        selectArtista.innerHTML = artistas.map(function (a) {
-            return `<option value="${a.id}">${a.nombre}</option>`;
-        }).join("");
-
-    } catch (error) {
-        selectArtista.innerHTML = `<option value="">No se pudo cargar la lista</option>`;
+        selector.innerHTML = artistas.length
+            ? artistas.map(artista => `<option value="${artista.id}">${artista.nombre}</option>`).join("")
+            : '<option value="">No hay artistas registrados</option>';
+    } catch {
+        selector.innerHTML = '<option value="">No se pudo cargar la lista</option>';
     }
 }
-
 cargarArtistas();
 
-// --- Precios: arriba y fuera de cualquier función, para que TODOS los listeners los vean ---
-const precios = {
-    Digital: 50000,
-    Acrilico: 100000,
-    Oleo: 150000
-};
-
-const recargoTamano = {
-    Pequeño: 0,
-    Mediano: 20000,
-    Grande: 50000
-};
-
-// Función reutilizable: evita repetir la cuenta del precio dos veces
-function calcularPrecio(tipo, personas, tamano) {
-    let precio = precios[tipo];
-    if (personas > 1) {
-        precio += (personas - 1) * 30000;
-    }
-    precio += recargoTamano[tamano];
-    return precio;
-}
-
-// --- Formulario de comisiones (solo corre si el formulario existe, o sea en Comisiones.html) ---
 if (formulario) {
-    formulario.addEventListener("submit", function (event) {
+    formulario.addEventListener("submit", event => {
         event.preventDefault();
-
         const tipo = document.getElementById("tipo").value;
         const personas = Number(document.getElementById("personas").value);
         const tamano = document.getElementById("tamano").value;
-        const precio = calcularPrecio(tipo, personas, tamano);
+        const total = calcularPrecio(tipo, personas, tamano);
 
-        cotizacionDiv.innerHTML = `
+        cotizacion.innerHTML = `
             <h3>Solicitud de comisión</h3>
             <p>Personas: ${personas}</p>
-            <p>Precio estimado: <strong>$${precio.toLocaleString("es-CO")} COP</strong></p>
+            <p>Precio estimado: <strong>$${total.toLocaleString("es-CO")} COP</strong></p>
             <button id="confirmar" type="button">Confirmar solicitud</button>
         `;
     });
-}
 
-// --- Generar el ticket al hacer clic en "Confirmar" (el botón se crea dinámicamente arriba) ---
-// --- Generar el ticket al hacer clic en "Confirmar" (el botón se crea dinámicamente arriba) ---
-document.addEventListener("click", async function (event) {
-    if (event.target.id === "confirmar") {
+    cotizacion.addEventListener("click", async event => {
+        if (event.target.id !== "confirmar") return;
 
+        const artista_id = Number(document.getElementById("artista").value);
         const tipo = document.getElementById("tipo").value;
         const personas = Number(document.getElementById("personas").value);
         const tamano = document.getElementById("tamano").value;
-        const descripcion = document.getElementById("descripcion").value;
+        const descripcion = document.getElementById("descripcion").value.trim();
         const precio = calcularPrecio(tipo, personas, tamano);
 
-        // Antes tenías: const artista_id = 1;
-const artista_id = Number(document.getElementById("artista").value);
-
-        const solicitud = { artista_id, tipo, personas, tamano, descripcion, precio };
+        if (!artista_id) {
+            ticket.textContent = "Selecciona un artista antes de confirmar.";
+            return;
+        }
 
         try {
             const respuesta = await fetch("http://localhost:3000/api/comisiones", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(solicitud)
+                body: JSON.stringify({ artista_id, tipo, personas, tamano, descripcion, precio })
             });
-
             const datos = await respuesta.json();
-            console.log("Respuesta del servidor:", datos);
+            if (!respuesta.ok) throw new Error(datos.error || "No se pudo enviar la solicitud");
 
-            const numeroSolicitud = Math.floor(Math.random() * 9000) + 1000;
-
-            ticketDiv.innerHTML = `
+            ticket.innerHTML = `
                 <div class="ticket">
-                    <h2>Solicitud #${numeroSolicitud}</h2>
+                    <h2>Solicitud #${datos.id}</h2>
                     <p><strong>Tipo:</strong> ${tipo}</p>
                     <p><strong>Personas:</strong> ${personas}</p>
                     <p><strong>Tamaño:</strong> ${tamano}</p>
-                    <p><strong>Descripción:</strong> ${descripcion}</p>
-                    <hr>
+                    <p><strong>Descripción:</strong> ${descripcion || "Sin descripción"}</p>
                     <h3>Total estimado: $${precio.toLocaleString("es-CO")} COP</h3>
                     <p>Estado: Solicitud recibida</p>
-                </div>
-            `;
-
+                </div>`;
         } catch (error) {
-            console.error("Error al enviar la solicitud:", error);
-            ticketDiv.innerHTML = `<p style="color: red;">No se pudo conectar con el servidor. ¿Está corriendo node server.js?</p>`;
+            ticket.textContent = error.message || "No se pudo conectar con el servidor.";
         }
-    }
-});
-
-// --- Modal de galería (corre en cualquier página que tenga #modal e imágenes .Galeria img) ---
-if (modal && imagenes.length) {
-    imagenes.forEach(function (imagen) {
-    imagen.addEventListener("click", function () {
-        modal.style.display = "flex";
-        modalImagen.src = imagen.src;
-        modalDescripcion.textContent =
-            imagen.dataset.desc || "Ilustración realizada por Ivan Tuesca.";
     });
-});
+}
 
-    // Cerrar con el botón X
-    cerrarModal.addEventListener("click", function () {
-        modal.style.display = "none";
+// Modal de la galería: permite ampliar y cerrar cada ilustración.
+const modal = document.getElementById("modal");
+if (modal) {
+    const imagenModal = document.getElementById("modalImagen");
+    const descripcionModal = document.getElementById("modalDescripcion");
+    const cerrar = document.getElementById("cerrarModal");
+
+    document.querySelectorAll(".Galeria img").forEach(imagen => {
+        imagen.addEventListener("click", () => {
+            imagenModal.src = imagen.src;
+            imagenModal.alt = imagen.alt;
+            descripcionModal.textContent = imagen.dataset.desc || "Ilustración realizada por Ivan Tuesca.";
+            modal.style.display = "flex";
+        });
     });
 
-    // Cerrar haciendo clic fuera de la imagen (en el fondo oscuro)
-    modal.addEventListener("click", function (event) {
-        if (event.target === modal) {
-            modal.style.display = "none";
-        }
+    function cerrarModal() { modal.style.display = "none"; }
+    if (cerrar) cerrar.addEventListener("click", cerrarModal);
+    modal.addEventListener("click", event => {
+        if (event.target === modal) cerrarModal();
+    });
+    document.addEventListener("keydown", event => {
+        if (event.key === "Escape") cerrarModal();
     });
 }

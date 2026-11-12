@@ -1,122 +1,99 @@
+// Panel privado: consulta solicitudes, permite filtrarlas y cambiar su estado.
 const token = localStorage.getItem("token");
-const listaDiv = document.getElementById("listaSolicitudes");
+const lista = document.getElementById("listaSolicitudes");
+const botonSalir = document.getElementById("btnLogout");
+let solicitudes = [];
 
-// Si no hay token guardado, no dejamos ver esta página
 if (!token) {
     window.location.href = "Login.html";
+} else {
+    cargarSolicitudes();
 }
 
 async function cargarSolicitudes() {
     try {
         const respuesta = await fetch("http://localhost:3000/api/comisiones", {
-            headers: { "Authorization": `Bearer ${token}` }
+            headers: { Authorization: `Bearer ${token}` }
         });
-
         if (!respuesta.ok) {
-            // Token vencido o inválido: manda de vuelta al login
             localStorage.removeItem("token");
             window.location.href = "Login.html";
             return;
         }
-
-        const solicitudes = await respuesta.json();
+        solicitudes = await respuesta.json();
         renderizarSolicitudes(solicitudes);
-
-    } catch (error) {
-        listaDiv.innerHTML = "<p>No se pudo conectar con el servidor.</p>";
+    } catch {
+        lista.textContent = "No se pudo conectar con el servidor.";
     }
 }
 
-function renderizarSolicitudes(solicitudes) {
-    if (solicitudes.length === 0) {
-        listaDiv.innerHTML = "<p>Todavía no tienes solicitudes.</p>";
+function renderizarSolicitudes(datos) {
+    if (!datos.length) {
+        lista.innerHTML = "<p style='color:white;text-align:center'>No hay solicitudes para mostrar.</p>";
         return;
     }
 
-    listaDiv.innerHTML = solicitudes.map(function (s) {
-        return `
-            <div class="solicitud-card">
-                <h3>Solicitud #${s.id}</h3>
-                <p><strong>Tipo:</strong> ${s.tipo}</p>
-                <p><strong>Personas:</strong> ${s.personas}</p>
-                <p><strong>Tamaño:</strong> ${s.tamano}</p>
-                <p><strong>Descripción:</strong> ${s.descripcion}</p>
-                <p><strong>Precio:</strong> $${s.precio.toLocaleString("es-CO")} COP</p>
-                <p><strong>Estado actual:</strong> ${s.estado}</p>
-
-                <select data-id="${s.id}" class="selectorEstado">
-                    <option value="pendiente" ${s.estado === "pendiente" ? "selected" : ""}>Pendiente</option>
-                    <option value="aceptada" ${s.estado === "aceptada" ? "selected" : ""}>Aceptada</option>
-                    <option value="pagada" ${s.estado === "pagada" ? "selected" : ""}>Pagada</option>
-                    <option value="rechazada" ${s.estado === "rechazada" ? "selected" : ""}>Rechazada</option>
+    lista.innerHTML = datos.map(solicitud => `
+        <article class="solicitud-card">
+            <h3>Solicitud #${solicitud.id}</h3>
+            <p><strong>Tipo:</strong> ${solicitud.tipo}</p>
+            <p><strong>Personas:</strong> ${solicitud.personas}</p>
+            <p><strong>Tamaño:</strong> ${solicitud.tamano}</p>
+            <p><strong>Descripción:</strong> ${solicitud.descripcion || "Sin descripción"}</p>
+            <p><strong>Precio:</strong> $${Number(solicitud.precio).toLocaleString("es-CO")} COP</p>
+            <p><strong>Estado:</strong> ${solicitud.estado}</p>
+            <label>Actualizar estado:
+                <select data-id="${solicitud.id}" class="selectorEstado">
+                    ${["pendiente", "aceptada", "pagada", "rechazada"].map(estado =>
+                        `<option value="${estado}" ${solicitud.estado === estado ? "selected" : ""}>${estado}</option>`
+                    ).join("")}
                 </select>
-            </div>
-        `;
-    }).join("");
+            </label>
+        </article>
+    `).join("");
 }
 
-// Escucha cambios en cualquier selector de estado (delegación de eventos)
-listaDiv.addEventListener("change", async function (event) {
-    if (!event.target.classList.contains("selectorEstado")) return;
-
+lista.addEventListener("change", async event => {
+    if (!event.target.matches(".selectorEstado")) return;
     const id = event.target.dataset.id;
-    const nuevoEstado = event.target.value;
+    const estado = event.target.value;
 
-    await fetch(`http://localhost:3000/api/comisiones/${id}/estado`, {
-        method: "PATCH",
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${token}`
-        },
-        body: JSON.stringify({ estado: nuevoEstado })
-    });
-
-    // Nuevo: si se rechaza, oculta la tarjeta de inmediato
-    if (nuevoEstado === "rechazada") {
-        event.target.closest(".solicitud-card").remove();
-    }
-});
-
-document.getElementById("btnLogout").addEventListener("click", function () {
-    localStorage.removeItem("token");
-    window.location.href = "Login.html";
-});
-
-cargarSolicitudes();
-
-let todasLasSolicitudes = []; // agrega esto arriba del archivo
-
-async function cargarSolicitudes() {
     try {
-        const respuesta = await fetch("http://localhost:3000/api/comisiones", {
-            headers: { "Authorization": `Bearer ${token}` }
+        const respuesta = await fetch(`http://localhost:3000/api/comisiones/${id}/estado`, {
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`
+            },
+            body: JSON.stringify({ estado })
         });
-
-        if (!respuesta.ok) {
-            localStorage.removeItem("token");
-            window.location.href = "Login.html";
-            return;
+        if (!respuesta.ok) throw new Error("No se pudo actualizar el estado");
+        const solicitud = solicitudes.find(item => String(item.id) === String(id));
+        if (solicitud) solicitud.estado = estado;
+        if (estado === "rechazada") {
+            solicitudes = solicitudes.filter(item => String(item.id) !== String(id));
+            event.target.closest(".solicitud-card").remove();
         }
-
-        todasLasSolicitudes = await respuesta.json(); // guarda la lista completa
-        renderizarSolicitudes(todasLasSolicitudes);
-
-    } catch (error) {
-        listaDiv.innerHTML = "<p>No se pudo conectar con el servidor.</p>";
+    } catch {
+        alert("No se pudo actualizar el estado. Inténtalo de nuevo.");
+        cargarSolicitudes();
     }
-}
+});
 
-// Nuevo: maneja los clics en los botones de filtro
-document.querySelectorAll(".filtroBtn").forEach(function (btn) {
-    btn.addEventListener("click", function () {
-        document.querySelectorAll(".filtroBtn").forEach(b => b.classList.remove("activo"));
-        btn.classList.add("activo");
-
-        const filtro = btn.dataset.filtro;
-        const filtradas = filtro === "todas"
-            ? todasLasSolicitudes
-            : todasLasSolicitudes.filter(s => s.estado === filtro);
-
-        renderizarSolicitudes(filtradas);
+document.querySelectorAll(".filtroBtn").forEach(boton => {
+    boton.addEventListener("click", () => {
+        document.querySelectorAll(".filtroBtn").forEach(item => item.classList.remove("activo"));
+        boton.classList.add("activo");
+        const filtro = boton.dataset.filtro;
+        renderizarSolicitudes(filtro === "todas"
+            ? solicitudes
+            : solicitudes.filter(item => item.estado === filtro));
     });
 });
+
+if (botonSalir) {
+    botonSalir.addEventListener("click", () => {
+        localStorage.removeItem("token");
+        window.location.href = "Login.html";
+    });
+}
