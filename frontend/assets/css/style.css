@@ -1501,3 +1501,135 @@ body:not(.pagina-inicio) {
         transition: none;
     }
 }
+
+/* =====================================================
+   LOGIN Y REGISTRO
+   (clases .auth-*, no afectan a otras páginas)
+   Si algo no te gusta, borra desde aquí hasta el final.
+===================================================== */
+
+.auth {
+    padding: 0 1rem 3rem;
+}
+
+/* Tarjeta: mismo estilo que Comisiones y Contacto */
+.auth-card {
+    max-width: 520px;
+    margin: 40px auto 0;
+    padding: 2.75rem clamp(1.25rem, 5vw, 3rem) 2.5rem;
+    background:
+        radial-gradient(ellipse at 50% 0%, rgba(163, 13, 32, 0.30), transparent 65%),
+        linear-gradient(160deg, var(--vino) 0%, var(--vino-oscuro) 45%, var(--negro) 100%);
+    border: 1px solid var(--borde-vino);
+    border-radius: 22px;
+    box-shadow:
+        0 30px 80px rgba(0, 0, 0, 0.60),
+        0 0 100px rgba(163, 13, 32, 0.18);
+    color: var(--blanco);
+    text-align: center;
+}
+
+/* Título en Ballet con filete rojo */
+.auth-card h2 {
+    font-family: var(--f-titulo);
+    font-weight: 400;
+    font-size: clamp(2.8rem, 5.5vw, 4rem);
+    line-height: 1.1;
+    color: var(--blanco);
+    text-shadow: 0 0 26px var(--brillo-rojo);
+    margin-bottom: 0.9rem;
+}
+
+.auth-card h2::after {
+    content: "";
+    display: block;
+    width: 90px;
+    height: 2px;
+    margin: 0.9rem auto 0;
+    background: linear-gradient(90deg, transparent, var(--rojo), transparent);
+}
+
+.auth-intro {
+    max-width: 380px;
+    margin: 0 auto;
+    font-size: 1.05rem;
+    opacity: 0.92;
+}
+
+/* Formulario (reutiliza los campos de .panel-form) */
+.auth-form {
+    max-width: none;
+    margin: 1.75rem auto 0;
+    gap: 0.4rem;
+    text-align: left;
+}
+
+.auth-form label {
+    margin-top: 0.7rem;
+    color: var(--blanco);
+    font-weight: 600;
+    font-size: 1rem;
+}
+
+.auth-form button {
+    width: 100%;
+    margin-top: 1.4rem;
+    padding: 1rem;
+    border-radius: 12px;
+    background: linear-gradient(135deg, var(--rojo), var(--vino));
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    transition: transform 0.15s, box-shadow 0.2s, filter 0.2s;
+}
+
+.auth-form button:hover {
+    background: linear-gradient(135deg, var(--rojo), var(--vino));
+    filter: brightness(1.25);
+    transform: translateY(-1px);
+    box-shadow: 0 10px 28px var(--brillo-rojo);
+}
+
+.auth-form button:disabled {
+    opacity: 0.6;
+    cursor: wait;
+    transform: none;
+    box-shadow: none;
+}
+
+/* Mensajes de error / éxito */
+.auth-mensaje {
+    min-height: 1.4em;
+    margin-top: 0.9rem;
+    font-weight: 600;
+    text-align: center;
+}
+
+.auth-mensaje.error { color: #ff9aa5; }
+.auth-mensaje.ok    { color: #9be7b0; }
+
+/* Enlace para cambiar entre login y registro */
+.auth-alterno {
+    margin-top: 1.4rem;
+    font-size: 0.98rem;
+    opacity: 0.92;
+}
+
+.auth-alterno a {
+    color: var(--blanco);
+    font-weight: 600;
+    text-decoration: underline;
+    text-decoration-color: var(--rojo);
+    text-underline-offset: 4px;
+}
+
+.auth-alterno a:hover {
+    color: #ff9aa5;
+}
+
+@media (max-width: 600px) {
+    .auth-card {
+        margin: 24px 4px 0;
+        border-radius: 18px;
+    }
+}

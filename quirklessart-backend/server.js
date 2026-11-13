@@ -1,41 +1,26 @@
+require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
-const Database = require("better-sqlite3");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+const mongoose = require("mongoose");
+const conectarDB = require("./database");
+const { Usuario, Solicitud } = require("./models");
 
 const app = express();
-const PORT = 3000;
-const JWT_SECRET = "sixseven";
+const PORT = process.env.PORT || 3000;
+const JWT_SECRET = process.env.JWT_SECRET;
+const CODIGO_INVITACION = (process.env.CODIGO_INVITACION || "").trim();
+// Correo de la cuenta que recibe TODAS las solicitudes de comisión (la tuya)
+const ARTISTA_EMAIL = (process.env.ARTISTA_EMAIL || "").toLowerCase().trim();
 
-const db = new Database("quirklessart.db");
+if (!JWT_SECRET) {
+    console.error("Falta JWT_SECRET en las variables de entorno.");
+    process.exit(1);
+}
 
-db.exec(`
-    CREATE TABLE IF NOT EXISTS usuarios (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        nombre TEXT NOT NULL,
-        email TEXT UNIQUE NOT NULL,
-        password_hash TEXT NOT NULL,
-        creado_en TEXT DEFAULT CURRENT_TIMESTAMP
-    )
-`);
-
-db.exec(`
-    CREATE TABLE IF NOT EXISTS solicitudes (
-        id INTEGER PRIMARY KEY AUTOINCREMENT,
-        artista_id INTEGER NOT NULL,
-        tipo TEXT NOT NULL,
-        personas INTEGER NOT NULL,
-        tamano TEXT NOT NULL,
-        descripcion TEXT,
-        precio INTEGER NOT NULL,
-        estado TEXT DEFAULT 'pendiente',
-        creado_en TEXT DEFAULT CURRENT_TIMESTAMP,
-        FOREIGN KEY (artista_id) REFERENCES usuarios(id)
-    )
-`);
-
-app.use(cors());
+// En producción, FRONTEND_URL limita quién puede llamar a la API (ej: https://tusitio.netlify.app)
+app.use(cors(process.env.FRONTEND_URL ? { origin: process.env.FRONTEND_URL } : undefined));
 app.use(express.json());
 
 function verificarToken(req, res, next) {
@@ -46,40 +31,44 @@ function verificarToken(req, res, next) {
     try {
         req.usuario = jwt.verify(token, JWT_SECRET);
         next();
-    } catch (error) {
+    } catch {
         return res.status(401).json({ error: "Token inválido o expirado" });
     }
 }
 
 app.post("/api/registro", async (req, res) => {
-    const { nombre, email, password } = req.body;
+    const { nombre, email, password, codigo } = req.body;
+
+    // Registro cerrado: solo con código de invitación
+    if (!CODIGO_INVITACION) {
+        return res.status(403).json({ error: "El registro está cerrado por ahora" });
+    }
+    if (String(codigo || "").trim() !== CODIGO_INVITACION) {
+        return res.status(403).json({ error: "Código de invitación incorrecto" });
+    }
 
     if (!nombre || !email || !password) {
         return res.status(400).json({ error: "Faltan datos" });
     }
+    if (String(password).length < 6) {
+        return res.status(400).json({ error: "La contraseña debe tener al menos 6 caracteres" });
+    }
 
-    const existente = db.prepare("SELECT id FROM usuarios WHERE email = ?").get(email);
+    const existente = await Usuario.findOne({ email });
     if (existente) {
         return res.status(400).json({ error: "Ese correo ya está registrado" });
     }
 
     const password_hash = await bcrypt.hash(password, 10);
-    const insertar = db.prepare("INSERT INTO usuarios (nombre, email, password_hash) VALUES (?, ?, ?)");
-    const resultado = insertar.run(nombre, email, password_hash);
-
-    res.json({ mensaje: "Cuenta creada", id: resultado.lastInsertRowid });
+    const usuario = await Usuario.create({ nombre, email, password_hash });
+    res.json({ mensaje: "Cuenta creada", id: usuario.id });
 });
 
 app.post("/api/login", async (req, res) => {
     const { email, password } = req.body;
 
-    const usuario = db.prepare("SELECT * FROM usuarios WHERE email = ?").get(email);
-    if (!usuario) {
-        return res.status(401).json({ error: "Correo o contraseña incorrectos" });
-    }
-
-    const coincide = await bcrypt.compare(password, usuario.password_hash);
-    if (!coincide) {
+    const usuario = await Usuario.findOne({ email: String(email || "").toLowerCase() });
+    if (!usuario || !(await bcrypt.compare(password, usuario.password_hash))) {
         return res.status(401).json({ error: "Correo o contraseña incorrectos" });
     }
 
@@ -91,53 +80,52 @@ app.get("/api/perfil", verificarToken, (req, res) => {
     res.json({ mensaje: `Hola, ${req.usuario.email}` });
 });
 
-app.post("/api/comisiones", (req, res) => {
-    const { artista_id, tipo, personas, tamano, descripcion, precio } = req.body;
+app.post("/api/comisiones", async (req, res) => {
+    const { tipo, personas, tamano, descripcion, precio } = req.body;
 
-    if (!artista_id) {
-        return res.status(400).json({ error: "Falta indicar a qué artista va dirigida la solicitud" });
+    if (!tipo || !personas || !tamano || precio == null) {
+        return res.status(400).json({ error: "Faltan datos de la solicitud" });
     }
 
-    const insertar = db.prepare(`
-        INSERT INTO solicitudes (artista_id, tipo, personas, tamano, descripcion, precio)
-        VALUES (?, ?, ?, ?, ?, ?)
-    `);
-    const resultado = insertar.run(artista_id, tipo, personas, tamano, descripcion, precio);
+    const artista = await Usuario.findOne({ email: ARTISTA_EMAIL });
+    if (!artista) {
+        console.error("ARTISTA_EMAIL no coincide con ningún usuario:", ARTISTA_EMAIL || "(vacío)");
+        return res.status(500).json({ error: "El sitio no está configurado para recibir solicitudes" });
+    }
 
-    res.json({ mensaje: "Solicitud guardada correctamente", id: resultado.lastInsertRowid });
+    const solicitud = await Solicitud.create({
+        artista_id: artista._id, tipo, personas, tamano, descripcion, precio
+    });
+    res.json({ mensaje: "Solicitud guardada correctamente", id: solicitud.id });
 });
 
-app.get("/api/comisiones", verificarToken, (req, res) => {
-    const solicitudes = db.prepare(
-        "SELECT * FROM solicitudes WHERE artista_id = ? ORDER BY creado_en DESC"
-    ).all(req.usuario.id);
-
+app.get("/api/comisiones", verificarToken, async (req, res) => {
+    const solicitudes = await Solicitud.find({ artista_id: req.usuario.id }).sort({ creado_en: -1 });
     res.json(solicitudes);
 });
 
-app.patch("/api/comisiones/:id/estado", verificarToken, (req, res) => {
+app.patch("/api/comisiones/:id/estado", verificarToken, async (req, res) => {
     const { id } = req.params;
     const { estado } = req.body;
 
-    const solicitud = db.prepare("SELECT * FROM solicitudes WHERE id = ?").get(id);
-
+    if (!mongoose.isValidObjectId(id)) {
+        return res.status(404).json({ error: "Solicitud no encontrada" });
+    }
+    const solicitud = await Solicitud.findById(id);
     if (!solicitud) {
         return res.status(404).json({ error: "Solicitud no encontrada" });
     }
-    if (solicitud.artista_id !== req.usuario.id) {
+    if (solicitud.artista_id.toString() !== req.usuario.id) {
         return res.status(403).json({ error: "No puedes modificar solicitudes de otro artista" });
     }
 
-    db.prepare("UPDATE solicitudes SET estado = ? WHERE id = ?").run(estado, id);
+    solicitud.estado = estado;
+    await solicitud.save();
     res.json({ mensaje: "Estado actualizado" });
 });
 
-// Lista pública de artistas (sin datos sensibles como password_hash)
-app.get("/api/artistas", (req, res) => {
-    const artistas = db.prepare("SELECT id, nombre FROM usuarios").all();
-    res.json(artistas);
-});
-
-app.listen(PORT, () => {
-    console.log(`Servidor corriendo en http://localhost:${PORT}`);
+conectarDB().then(() => {
+    app.listen(PORT, () => {
+        console.log(`Servidor corriendo en http://localhost:${PORT}`);
+    });
 });

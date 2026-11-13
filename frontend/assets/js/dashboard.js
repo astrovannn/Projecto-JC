@@ -12,7 +12,7 @@ if (!token) {
 
 async function cargarSolicitudes() {
     try {
-        const respuesta = await fetch("http://localhost:3000/api/comisiones", {
+        const respuesta = await fetch(`${API_BASE}/api/comisiones`, {
             headers: { Authorization: `Bearer ${token}` }
         });
         if (!respuesta.ok) {
@@ -59,7 +59,7 @@ lista.addEventListener("change", async event => {
     const estado = event.target.value;
 
     try {
-        const respuesta = await fetch(`http://localhost:3000/api/comisiones/${id}/estado`, {
+        const respuesta = await fetch(`${API_BASE}/api/comisiones/${id}/estado`, {
             method: "PATCH",
             headers: {
                 "Content-Type": "application/json",

@@ -10,22 +10,6 @@ function calcularPrecio(tipo, personas, tamano) {
     return (precios[tipo] || 0) + Math.max(0, personas - 1) * 30000 + (recargos[tamano] || 0);
 }
 
-async function cargarArtistas() {
-    const selector = document.getElementById("artista");
-    if (!selector) return;
-
-    try {
-        const respuesta = await fetch("http://localhost:3000/api/artistas");
-        if (!respuesta.ok) throw new Error("No se pudo cargar la lista");
-        const artistas = await respuesta.json();
-        selector.innerHTML = artistas.length
-            ? artistas.map(artista => `<option value="${artista.id}">${artista.nombre}</option>`).join("")
-            : '<option value="">No hay artistas registrados</option>';
-    } catch {
-        selector.innerHTML = '<option value="">No se pudo cargar la lista</option>';
-    }
-}
-cargarArtistas();
 
 if (formulario) {
     formulario.addEventListener("submit", event => {
@@ -46,23 +30,18 @@ if (formulario) {
     cotizacion.addEventListener("click", async event => {
         if (event.target.id !== "confirmar") return;
 
-        const artista_id = Number(document.getElementById("artista").value);
         const tipo = document.getElementById("tipo").value;
         const personas = Number(document.getElementById("personas").value);
         const tamano = document.getElementById("tamano").value;
         const descripcion = document.getElementById("descripcion").value.trim();
         const precio = calcularPrecio(tipo, personas, tamano);
 
-        if (!artista_id) {
-            ticket.textContent = "Selecciona un artista antes de confirmar.";
-            return;
-        }
 
         try {
-            const respuesta = await fetch("http://localhost:3000/api/comisiones", {
+            const respuesta = await fetch(`${API_BASE}/api/comisiones`, {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ artista_id, tipo, personas, tamano, descripcion, precio })
+                body: JSON.stringify({ tipo, personas, tamano, descripcion, precio })
             });
             const datos = await respuesta.json();
             if (!respuesta.ok) throw new Error(datos.error || "No se pudo enviar la solicitud");
