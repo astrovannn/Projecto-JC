@@ -6,7 +6,7 @@ const jwt = require("jsonwebtoken");
 
 const app = express();
 const PORT = 3000;
-const JWT_SECRET = "cambia-esto-por-algo-secreto-y-largo";
+const JWT_SECRET = "sixseven";
 
 const db = new Database("quirklessart.db");
 

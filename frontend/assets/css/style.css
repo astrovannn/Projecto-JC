@@ -675,7 +675,7 @@ body.pagina-inicio {
 .disco-container {
     position: absolute;
     left: -21rem;
-    top: 35rem;
+    top: 40rem;
     width: min(800px, 190vw);
     aspect-ratio: 1;
     z-index: 1;
