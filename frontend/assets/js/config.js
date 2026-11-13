@@ -7,4 +7,4 @@ const API_BASE = (
     location.hostname === "127.0.0.1"
 )
     ? "http://localhost:3000"
-    : "https://projecto-jc.onrender.com/api/artistas";
+    : "https://projecto-jc.onrender.com";
