@@ -39,11 +39,10 @@ function verificarToken(req, res, next) {
 app.post("/api/registro", async (req, res) => {
     const { nombre, email, password, codigo } = req.body;
 
-    // Registro cerrado: solo con código de invitación
-    if (!CODIGO_INVITACION) {
-        return res.status(403).json({ error: "El registro está cerrado por ahora" });
-    }
-    if (String(codigo || "").trim() !== CODIGO_INVITACION) {
+    // El código de invitación es opcional: se puede registrar sin él.
+    // Si la persona escribe uno y hay un código configurado, debe coincidir (evita typos).
+    const codigoEscrito = String(codigo || "").trim();
+    if (codigoEscrito && CODIGO_INVITACION && codigoEscrito !== CODIGO_INVITACION) {
         return res.status(403).json({ error: "Código de invitación incorrecto" });
     }
 

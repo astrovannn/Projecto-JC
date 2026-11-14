@@ -31,58 +31,8 @@
             <h2>¿Tienes una idea en mente?</h2>
             <p>¿Quieres una obra personalizada? Cuéntame qué tienes en mente.</p>
 
-        <form id="formComision">
-
-                <label for="tipo">Tipo de obra:</label>
-
-                <select id="tipo">
-                    <option value="Digital">Ilustración digital</option>
-                    <option value="Acrilico">Pintura acrílica</option>
-                    <option value="Oleo">Pintura al óleo</option>
-                </select>
-
-
-                <label for="personas">Número de personas:</label>
-
-                <input
-                    type="number"
-                    id="personas"
-                    min="1"
-                    max="10"
-                    value="1"
-                >
-
-
-                <label for="tamano">Tamaño:</label>
-
-                <select id="tamano">
-                    <option value="Pequeño">Pequeño</option>
-                    <option value="Mediano">Mediano</option>
-                    <option value="Grande">Grande</option>
-                </select>
-
-
-                <label for="descripcion">
-                    Describe tu idea:
-                </label>
-
-                <textarea
-                    id="descripcion"
-                    placeholder="Cuéntame qué quieres realizar..."
-                ></textarea>
-
-
-                <button type="submit">
-                    Solicitar cotización
-                </button>
-
-            </form>
-
-            <!-- Aquí aparecerá el precio -->
-            <div id="cotizacion"></div>
-
-            <!-- Aquí aparecerá el ticket -->
-            <div id="ticket"></div>
+        <!-- El formulario, la cotización y el ticket los dibuja React -->
+        <div id="react-comisiones"></div>
         </section>
     </main>
     <footer>
@@ -91,7 +41,7 @@
     </footer>
 
     <script src="../js/config.js"></script>
-    <script src="../js/script.js"></script>
+    <script src="../js/react-app.js"></script>
     <script src="../js/nav.js"></script>
 </body>
 </html>

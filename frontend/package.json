@@ -1,0 +1,14 @@
+{
+  "name": "quirklessart-frontend",
+  "private": true,
+  "scripts": {
+    "build": "esbuild react/index.jsx --bundle --minify --jsx=automatic --define:process.env.NODE_ENV=\\\"production\\\" --outfile=assets/js/react-app.js"
+  },
+  "dependencies": {
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.0"
+  }
+}

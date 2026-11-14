@@ -77,7 +77,10 @@ if (formRegistro) {
         mostrarMensaje(mensaje, "Creando tu cuenta...", "");
 
         try {
-            const registro = await enviarJSON("/registro", { nombre, email, password, codigo });
+            // El código de invitación es opcional: solo se envía si lo escribieron
+            const datos = { nombre, email, password };
+            if (codigo) datos.codigo = codigo;
+            const registro = await enviarJSON("/registro", datos);
 
             if (!registro.ok) {
                 mostrarMensaje(mensaje, registro.cuerpo.error || "No se pudo crear la cuenta.", "error");
